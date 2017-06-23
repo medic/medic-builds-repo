@@ -1,0 +1,8 @@
+language: node_js
+script:
+  - `which grunt`
+after_success:
+  - |
+    if [ "$TRAVIS_BRANCH" == "master" ]; then
+      node ./scripts/pushToServer.js
+    fi

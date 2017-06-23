@@ -10,6 +10,7 @@
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-couch": "^1.5.1",
-    "load-grunt-tasks": "^3.5.2"
+    "load-grunt-tasks": "^3.5.2",
+    "pouchdb": "^6.2.0"
   }
 }
