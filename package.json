@@ -1,0 +1,16 @@
+{
+  "name": "builds",
+  "version": "0.0.1",
+  "description": "builds ddocs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-couch": "^1.5.1",
+    "load-grunt-tasks": "^3.5.2"
+  }
+}
