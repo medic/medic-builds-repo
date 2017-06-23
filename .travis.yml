@@ -1,6 +1,11 @@
 language: node_js
+
+before_script:
+  - npm install grunt-cli -g
+
 script:
-  - `which grunt`
+  - grunt
+
 after_success:
   - |
     if [ "$TRAVIS_BRANCH" == "master" ]; then
