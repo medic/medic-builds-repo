@@ -9,13 +9,13 @@ module.exports = function(grunt) {
     'couch-compile': {
       ddocs: {
         files: {
-          'builds.json': [ 'builds' ]
+          'ddocs.json': [ 'ddocs/*' ]
         }
       }
     }
   });
 
-  grunt.registerTask('build', 'Build the ddoc', [
+  grunt.registerTask('default', 'Build the ddoc', [
     'couch-compile',
   ]);
 };
