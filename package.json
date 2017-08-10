@@ -8,9 +8,14 @@
     "url": "git://github.com/medic/medic-builds-repo.git"
   },
   "devDependencies": {
+    "chai": "^4.1.1",
     "grunt": "^1.0.1",
+    "grunt-contrib-jshint": "^1.1.0",
     "grunt-couch": "^1.5.1",
+    "grunt-mocha-test": "^0.13.2",
     "load-grunt-tasks": "^3.5.2",
+    "mocha": "^3.5.0",
+    "nodeunit": "^0.11.1",
     "pouchdb": "^6.2.0"
   }
 }
