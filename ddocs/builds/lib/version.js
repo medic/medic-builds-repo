@@ -41,7 +41,7 @@ exports.fn = function(docId) {
       patch: parseInt(semver[5]) || undefined,
       ext: semver[6] || undefined,
       extNum: parseInt(semver[7]) || undefined,
-      branch: parseInt(semver[8]) || undefined
+      branch: semver[8] || undefined
     };
   }
 };

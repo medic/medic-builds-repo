@@ -31,7 +31,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('default', 'Build the ddoc', [
-    'couch-compile',
+    'ci',
   ]);
 
   grunt.registerTask('unit', 'Run unit tests', [
