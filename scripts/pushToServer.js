@@ -1,4 +1,5 @@
-const DB = require('pouchdb')(process.env.BUILDS_COUCH_URL);
+const DB = require('pouchdb-core')
+      .plugin(require('pouchdb-adapter-http'))(process.env.BUILDS_COUCH_URL);
 
 const generatedDDocs = require('../ddocs.json');
 

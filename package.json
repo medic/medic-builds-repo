@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "chai": "^4.1.1",
+    "couchdb-compile": "^1.8.0",
     "grunt": "^1.0.1",
     "grunt-contrib-jshint": "^1.1.0",
     "grunt-couch": "^1.5.1",
@@ -16,6 +17,9 @@
     "load-grunt-tasks": "^3.5.2",
     "mocha": "^3.5.0",
     "nodeunit": "^0.11.1",
-    "pouchdb": "^6.2.0"
+    "pouchdb-core": "^6.2.0",
+    "pouchdb-adapter-http": "^6.2.0",
+    "pouchdb-adapter-memory": "^6.3.4",
+    "pouchdb-mapreduce": "^6.2.0"
   }
 }

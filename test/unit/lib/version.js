@@ -1,6 +1,6 @@
 const should = require('chai').should();
 
-const versions = require('../../../ddocs/builds/lib/version').fn;
+const versions = require('../../../ddocs/builds/views/lib/version').fn;
 
 describe('Version extractor', () => {
   it('extracts all information from tag releases', () => {

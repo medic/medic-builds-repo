@@ -30,13 +30,21 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('default', 'Build the ddoc', [
+  grunt.registerTask('default', 'Run ci', [
     'ci',
   ]);
 
   grunt.registerTask('unit', 'Run unit tests', [
     'jshint',
     'mochaTest'
+  ]);
+
+  grunt.registerTask('test', 'Run all tests', [
+    'unit'
+  ]);
+
+  grunt.registerTask('build', 'Build the ddoc', [
+    'couch-compile'
   ]);
 
   grunt.registerTask('ci', 'Test and build', [
