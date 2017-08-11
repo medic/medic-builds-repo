@@ -24,7 +24,7 @@ exports.fn = function(docId) {
    *   (\d+)\.(\d+)\.(\d+)
    * Gets the major, minor and patch. Required. Consumes `1.2.3`.
    *   (?:-(.+)\.(\d+))?
-   * Optionally, also consume dash, a label and a number. Can consume -beta.4
+   * Optionally, also consume the prerelease label and number. Can consume -beta.4
    *   |(.+)
    * As noted above, if the following doesn't match presume it's a branch and
    * just capture the entire text after the db and ddoc as a label.
@@ -37,12 +37,12 @@ exports.fn = function(docId) {
     return {
       namespace: semver[1],
       application: semver[2],
-      major: parseInt(semver[3]) || undefined,
-      minor: parseInt(semver[4]) || undefined,
-      patch: parseInt(semver[5]) || undefined,
-      ext: semver[6] || undefined,
-      extNum: parseInt(semver[7]) || undefined,
-      branch: semver[8] || undefined
+      major: parseInt(semver[3]),
+      minor: parseInt(semver[4]),
+      patch: parseInt(semver[5]),
+      pre: semver[6],
+      preNum: parseInt(semver[7]),
+      branch: semver[8]
     };
   }
 };

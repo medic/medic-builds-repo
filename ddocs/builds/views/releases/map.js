@@ -7,8 +7,8 @@ function(doc) {
       version.major,
       version.minor,
       version.patch,
-      version.ext,
-      version.extNum,
+      version.pre,
+      version.preNum,
       version.branch], { build_time: doc.kanso && doc.kanso.build_time });
   } else {
     log('The document ' + doc._id + ' cannot be matched against correctly');

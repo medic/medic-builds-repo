@@ -3,6 +3,8 @@ const should = require('chai').should();
 const versions = require('../../../ddocs/builds/views/lib/version').fn;
 
 describe('Version extractor', () => {
+  // NB: Empty strings being undefined and empty numbers being NaN is ugly
+  //     here, but when run through CouchDB it all gets converted to null
   it('extracts all information from tag releases', () => {
     versions('foo/bar@1.2.3').should.deep.equal({
       namespace: 'foo',
@@ -10,8 +12,8 @@ describe('Version extractor', () => {
       major: 1,
       minor: 2,
       patch: 3,
-      ext: undefined,
-      extNum: undefined,
+      pre: undefined,
+      preNum: NaN,
       branch: undefined,
     });
   });
@@ -23,8 +25,8 @@ describe('Version extractor', () => {
       major: 1,
       minor: 2,
       patch: 3,
-      ext: 'beta',
-      extNum: 4,
+      pre: 'beta',
+      preNum: 4,
       branch: undefined,
     });
   });
@@ -36,8 +38,8 @@ describe('Version extractor', () => {
       major: 1,
       minor: 2,
       patch: 3,
-      ext: 'rc',
-      extNum: 4,
+      pre: 'rc',
+      preNum: 4,
       branch: undefined,
     });
   });
@@ -46,12 +48,25 @@ describe('Version extractor', () => {
     versions('foo/bar@some-branch').should.deep.equal({
       namespace: 'foo',
       application: 'bar',
-      major: undefined,
-      minor: undefined,
-      patch: undefined,
-      ext: undefined,
-      extNum: undefined,
+      major: NaN,
+      minor: NaN,
+      patch: NaN,
+      pre: undefined,
+      preNum: NaN,
       branch: 'some-branch',
+    });
+  });
+
+  it('Correctly converts major / minor / patch into numbers', () => {
+    versions('foo/bar@1.0.0').should.deep.equal({
+      namespace: 'foo',
+      application: 'bar',
+      major: 1,
+      minor: 0,
+      patch: 0,
+      pre: undefined,
+      preNum: NaN,
+      branch: undefined,
     });
   });
 
