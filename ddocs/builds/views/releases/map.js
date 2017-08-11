@@ -2,8 +2,8 @@ function(doc) {
   var version = require('views/lib/version').fn(doc._id);
   if (version) {
     emit([
+      version.namespace,
       version.application,
-      version.ddocName,
       version.major,
       version.minor,
       version.patch,

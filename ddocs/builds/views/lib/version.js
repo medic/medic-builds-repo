@@ -3,16 +3,16 @@ exports.fn = function(docId) {
    * Now we have two problems!
    *
    * This should match and extract:
-   *   foo:bar:1.2.3
-   *   foo:bar:1.2.3-beta.4
-   *   foo:bar:some-branch-name
+   *   foo/bar@1.2.3
+   *   foo/bar@1.2.3-beta.4
+   *   foo/bar@some-branch-name
    *
    * Let's walk through the regex:
    *   /^<snip>$/
    * Wrapped in ^$ so it's a strict match
-   *   ([^:]+):([^:]+):
-   * The first two capture groups are for the db name and ddoc name, getting
-   * the arbitrary two values separated by a :. This consumes `foo:bar:`.
+   *   ([^\/]+)/([^@]+)@
+   * The first two capture groups are for the namespace and application name,
+   * separated by a /. This consumes `foo/bar@`.
    *   (?:
    * A non-capture group, just used for grouping, not outputting
    *   (?:(<snip>)|(.+))
@@ -29,13 +29,14 @@ exports.fn = function(docId) {
    * As noted above, if the following doesn't match presume it's a branch and
    * just capture the entire text after the db and ddoc as a label.
    */
-  var matchVersion = /^([^:]+):([^:]+):(?:(?:(\d+)\.(\d+)\.(\d+)(?:-(.+)\.(\d+))?)|(.+))$/;
+  var matchVersion = /^([^\/]+)\/([^@]+)@(?:(?:(\d+)\.(\d+)\.(\d+)(?:-(.+)\.(\d+))?)|(.+))$/;
 
   var semver = docId.match(matchVersion);
   if (semver) {
+    // TODO 0 should not be changed to undefined!
     return {
-      application: semver[1],
-      ddocName: semver[2],
+      namespace: semver[1],
+      application: semver[2],
       major: parseInt(semver[3]) || undefined,
       minor: parseInt(semver[4]) || undefined,
       patch: parseInt(semver[5]) || undefined,
