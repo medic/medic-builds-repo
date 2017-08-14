@@ -6,7 +6,7 @@ describe('Version extractor', () => {
   // NB: Empty strings being undefined and empty numbers being NaN is ugly
   //     here, but when run through CouchDB it all gets converted to null
   it('extracts all information from tag releases', () => {
-    versions('foo/bar@1.2.3').should.deep.equal({
+    versions('foo:bar:1.2.3').should.deep.equal({
       namespace: 'foo',
       application: 'bar',
       major: 1,
@@ -19,7 +19,7 @@ describe('Version extractor', () => {
   });
 
   it('extracts all information from beta releases', () => {
-    versions('foo/bar@1.2.3-beta.4').should.deep.equal({
+    versions('foo:bar:1.2.3-beta.4').should.deep.equal({
       namespace: 'foo',
       application: 'bar',
       major: 1,
@@ -32,7 +32,7 @@ describe('Version extractor', () => {
   });
 
   it('can also deal with any other type of secondary releases', () => {
-    versions('foo/bar@1.2.3-rc.4').should.deep.equal({
+    versions('foo:bar:1.2.3-rc.4').should.deep.equal({
       namespace: 'foo',
       application: 'bar',
       major: 1,
@@ -45,7 +45,7 @@ describe('Version extractor', () => {
   });
 
   it('extracts all information from branches', () => {
-    versions('foo/bar@some-branch').should.deep.equal({
+    versions('foo:bar:some-branch').should.deep.equal({
       namespace: 'foo',
       application: 'bar',
       major: NaN,
@@ -58,7 +58,7 @@ describe('Version extractor', () => {
   });
 
   it('Correctly converts major / minor / patch into numbers', () => {
-    versions('foo/bar@1.0.0').should.deep.equal({
+    versions('foo:bar:1.0.0').should.deep.equal({
       namespace: 'foo',
       application: 'bar',
       major: 1,

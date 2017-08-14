@@ -8,9 +8,15 @@ module.exports = function(grunt) {
     mochaTest: {
       test: {
         options: {
-          reporter: 'spec',
+          reporter: 'spec'
         },
         src: ['test/unit/**/*.js']
+      },
+      int: {
+        options: {
+          reporter: 'spec'
+        },
+        src: ['test/int/**/*.js']
       }
     },
     jshint: {
@@ -36,11 +42,13 @@ module.exports = function(grunt) {
 
   grunt.registerTask('unit', 'Run unit tests', [
     'jshint',
-    'mochaTest'
+    'mochaTest:test'
   ]);
 
   grunt.registerTask('test', 'Run all tests', [
-    'unit'
+    'jshint',
+    'mochaTest:test',
+    'mochaTest:int'
   ]);
 
   grunt.registerTask('build', 'Build the ddoc', [
@@ -49,7 +57,8 @@ module.exports = function(grunt) {
 
   grunt.registerTask('ci', 'Test and build', [
     'jshint',
-    'mochaTest',
+    'mochaTest:test',
+    'mochaTest:int',
     'couch-compile'
   ]);
 };
