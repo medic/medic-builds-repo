@@ -30,5 +30,5 @@ DB.allDocs({keys: ids})
 })
 .catch(err => {
   console.error('Unknown problem', err);
-  process.exit(-1)
+  process.exit(-1);
 });
