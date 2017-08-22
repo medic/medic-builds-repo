@@ -1,4 +1,5 @@
-const DB = require('pouchdb')(process.env.BUILDS_COUCH_URL);
+const DB = require('pouchdb-core')
+      .plugin(require('pouchdb-adapter-http'))(process.env.BUILDS_COUCH_URL);
 
 const generatedDDocs = require('../ddocs.json');
 
@@ -29,5 +30,5 @@ DB.allDocs({keys: ids})
 })
 .catch(err => {
   console.error('Unknown problem', err);
-  process.exit(-1)
+  process.exit(-1);
 });

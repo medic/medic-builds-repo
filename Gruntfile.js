@@ -1,11 +1,32 @@
 module.exports = function(grunt) {
   'use strict';
 
-  // require('time-grunt')(grunt);
   require('load-grunt-tasks')(grunt);
+  grunt.loadNpmTasks('grunt-mocha-test');
 
-  // Project configuration
   grunt.initConfig({
+    mochaTest: {
+      test: {
+        options: {
+          reporter: 'spec'
+        },
+        src: ['test/unit/**/*.js']
+      },
+      int: {
+        options: {
+          reporter: 'spec'
+        },
+        src: ['test/int/**/*.js']
+      }
+    },
+    jshint: {
+      options: {
+        jshintrc: true
+      },
+      all: [
+        'ddocs/**/*.js'
+      ]
+    },
     'couch-compile': {
       ddocs: {
         files: {
@@ -15,7 +36,29 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('default', 'Build the ddoc', [
-    'couch-compile',
+  grunt.registerTask('default', 'Run ci', [
+    'ci',
+  ]);
+
+  grunt.registerTask('unit', 'Run unit tests', [
+    'jshint',
+    'mochaTest:test'
+  ]);
+
+  grunt.registerTask('test', 'Run all tests', [
+    'jshint',
+    'mochaTest:test',
+    'mochaTest:int'
+  ]);
+
+  grunt.registerTask('build', 'Build the ddoc', [
+    'couch-compile'
+  ]);
+
+  grunt.registerTask('ci', 'Test and build', [
+    'jshint',
+    'mochaTest:test',
+    'mochaTest:int',
+    'couch-compile'
   ]);
 };
