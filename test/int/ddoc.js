@@ -5,18 +5,26 @@ const should = require('chai').should(),
       compile = require('couchdb-compile'),
       TEST_URL = process.env.TEST_URL;
 
+let DB = new PouchDB(TEST_URL);
+const resetDb = () =>
+    DB.destroy()
+    .then(() => DB = new PouchDB(TEST_URL))
+    .then(() =>
+      new Promise((resolve, reject) =>
+        compile('ddocs/builds', (err, ddoc) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(ddoc);
+          }
+      })))
+      .then(ddoc => DB.put(ddoc));
 
 describe('releases view', () => {
 
   if (!TEST_URL) {
     should.fail(null, null, 'You must provide a TEST_URL env var. See README.md');
   }
-
-  let DB = new PouchDB(TEST_URL);
-  const resetDb = () =>
-    DB.destroy().then(() => DB = new PouchDB(TEST_URL));
-
-  beforeEach(resetDb);
 
   const newerBranchDate = new Date();
   const olderBranchDate = new Date();
@@ -45,18 +53,7 @@ describe('releases view', () => {
       {_id: 'medic:builds:1.0.0-rc.1', kanso: {build_time: new Date()}},
     ];
 
-    beforeEach(() =>
-      new Promise((resolve, reject) =>
-        compile('ddocs/builds', (err, ddoc) => {
-          if (err) {
-            reject(err);
-          }
-
-          const docsToPush = testReleases.concat(ddoc);
-          resolve(docsToPush);
-      }))
-      .then(docsToPush => DB.bulkDocs(docsToPush))
-      .then(() => DB.allDocs()));
+    before(() => resetDb().then(() => DB.bulkDocs(testReleases)));
 
     it('Can be filtered to return only releases after a certain release', () =>
       DB.query('builds/releases', {
