@@ -1,5 +1,10 @@
-const should = require('chai').should(),
-      PouchDB = require('pouchdb-core')
+const chai = require("chai");
+const chaiAsPromised = require("chai-as-promised");
+chai.use(chaiAsPromised);
+
+const should = chai.should();
+
+const PouchDB = require('pouchdb-core')
         .plugin(require('pouchdb-adapter-http'))
         .plugin(require('pouchdb-mapreduce')),
       compile = require('couchdb-compile'),
@@ -109,4 +114,28 @@ describe('releases view', () => {
       }));
 
   });
+});
+
+describe('validate_doc_update', () => {
+  before(resetDb);
+
+  it('Lets us write to a branch multiple times', () =>
+    DB.put({_id: 'medic:medic:a-branch', value: 1})
+    .then(result => DB.put({_id: 'medic:medic:a-branch', value: 2, _rev: result.rev}))
+    .then(() => DB.get('medic:medic:a-branch'))
+    .then(doc => doc.value.should.equal(2)));
+
+  it('Blocks multiple writes to releases', () =>
+    DB.put({_id: 'medic:medic:2.0.0', value: 1})
+    .then(result => DB.put({_id: 'medic:medic:2.0.0', value: 2, _rev: result.rev}))
+    .should.be.rejectedWith('You are not allowed to overwrite existing releases or pre-releases'));
+
+  it('Blocks multiple writes to pre-releases', () =>
+    DB.put({_id: 'medic:medic:2.0.0-beta.1', value: 1})
+    .then(result => DB.put({_id: 'medic:medic:2.0.0-beta.1', value: 2, _rev: result.rev}))
+    .should.be.rejectedWith('You are not allowed to overwrite existing releases or pre-releases'));
+
+  it('Blocks incorrect document ids', () =>
+    DB.put({_id: 'not-a-valid-version-identifier'})
+    .should.be.rejectedWith('Document _id format invalid'));
 });
