@@ -10,6 +10,10 @@ const PouchDB = require('pouchdb-core')
       compile = require('couchdb-compile'),
       TEST_URL = process.env.TEST_URL;
 
+if (!TEST_URL) {
+  should.fail(null, null, 'You must provide a TEST_URL env var. See README.md');
+}
+
 let DB = new PouchDB(TEST_URL);
 const resetDb = () =>
     DB.destroy()
@@ -25,11 +29,22 @@ const resetDb = () =>
       })))
       .then(ddoc => DB.put(ddoc));
 
-describe('releases view', () => {
+const withBuildInfo = (doc, specificTime) => {
+  const [ns, app, version] = doc._id.split(':');
 
-  if (!TEST_URL) {
-    should.fail(null, null, 'You must provide a TEST_URL env var. See README.md');
-  }
+  doc.build_info = {
+    namespace: ns,
+    application: app,
+    version: version,
+    time: specificTime || new Date(),
+    author: 'int. test',
+    node_modules: []
+  };
+
+  return doc;
+};
+
+describe('releases view', () => {
 
   const newerBranchDate = new Date();
   const olderBranchDate = new Date();
@@ -37,28 +52,35 @@ describe('releases view', () => {
 
   describe('Filtering', () => {
     const testReleases = [
-      {_id: 'foo:bar:1.2.3', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.2.4', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.2.5', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.3.0', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.3.1', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.3.2', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.4.0', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:2.1.2', kanso: {build_time: new Date()}},
-      {_id: 'oof:bar:1.3.2', kanso: {build_time: new Date()}},
-      {_id: 'foo:rab:1.3.2', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.3.2-beta.1', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.3.3-beta.1', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.3.3-beta.2', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.3.3-beta.3', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:1.3.4-beta.1', kanso: {build_time: new Date()}},
-      {_id: 'foo:bar:older-branch', kanso: {build_time: olderBranchDate}},
-      {_id: 'foo:bar:newer-branch', kanso: {build_time: newerBranchDate}},
-      {_id: 'bar:foo:not-a-foo-bar-branch', kanso: {build_time: new Date()}},
-      {_id: 'medic:builds:1.0.0-rc.1', kanso: {build_time: new Date()}},
+      withBuildInfo({_id: 'foo:bar:1.2.3'}),
+      withBuildInfo({_id: 'foo:bar:1.2.4'}),
+      withBuildInfo({_id: 'foo:bar:1.2.5'}),
+      withBuildInfo({_id: 'foo:bar:1.3.0'}),
+      withBuildInfo({_id: 'foo:bar:1.3.1'}),
+      withBuildInfo({_id: 'foo:bar:1.3.2'}),
+      withBuildInfo({_id: 'foo:bar:1.4.0'}),
+      withBuildInfo({_id: 'foo:bar:2.1.2'}),
+      withBuildInfo({_id: 'oof:bar:1.3.2'}),
+      withBuildInfo({_id: 'foo:rab:1.3.2'}),
+      withBuildInfo({_id: 'foo:bar:1.3.2-beta.1'}),
+      withBuildInfo({_id: 'foo:bar:1.3.3-beta.1'}),
+      withBuildInfo({_id: 'foo:bar:1.3.3-beta.2'}),
+      withBuildInfo({_id: 'foo:bar:1.3.3-beta.3'}),
+      withBuildInfo({_id: 'foo:bar:1.3.4-beta.1'}),
+      withBuildInfo({_id: 'foo:bar:older-branch'}, olderBranchDate),
+      withBuildInfo({_id: 'foo:bar:newer-branch'}, newerBranchDate),
+      withBuildInfo({_id: 'bar:foo:not-a-foo-bar-branch'}),
+      withBuildInfo({_id: 'medic:builds:1.0.0-rc.1'})
     ];
 
-    before(() => resetDb().then(() => DB.bulkDocs(testReleases)));
+    before(() => resetDb()
+      .then(() => DB.bulkDocs(testReleases))
+      .then(results => {
+        const badResults = results.filter(r => r.error);
+        if (badResults.length) {
+          throw Error(badResults);
+        }
+      }));
 
     it('Can be filtered to return only releases after a certain release', () =>
       DB.query('builds/releases', {
@@ -120,22 +142,33 @@ describe('validate_doc_update', () => {
   before(resetDb);
 
   it('Lets us write to a branch multiple times', () =>
-    DB.put({_id: 'medic:medic:a-branch', value: 1})
-    .then(result => DB.put({_id: 'medic:medic:a-branch', value: 2, _rev: result.rev}))
+    DB.put(withBuildInfo({_id: 'medic:medic:a-branch', value: 1}))
+    .then(result => DB.put(withBuildInfo({_id: 'medic:medic:a-branch', value: 2, _rev: result.rev})))
     .then(() => DB.get('medic:medic:a-branch'))
     .then(doc => doc.value.should.equal(2)));
 
   it('Blocks multiple writes to releases', () =>
-    DB.put({_id: 'medic:medic:2.0.0', value: 1})
-    .then(result => DB.put({_id: 'medic:medic:2.0.0', value: 2, _rev: result.rev}))
+    DB.put(withBuildInfo({_id: 'medic:medic:2.0.0', value: 1}))
+    .then(result => DB.put(withBuildInfo({_id: 'medic:medic:2.0.0', value: 2, _rev: result.rev})))
     .should.be.rejectedWith('You are not allowed to overwrite existing releases or pre-releases'));
 
   it('Blocks multiple writes to pre-releases', () =>
-    DB.put({_id: 'medic:medic:2.0.0-beta.1', value: 1})
-    .then(result => DB.put({_id: 'medic:medic:2.0.0-beta.1', value: 2, _rev: result.rev}))
+    DB.put(withBuildInfo({_id: 'medic:medic:2.0.0-beta.1', value: 1}))
+    .then(result => DB.put(withBuildInfo({_id: 'medic:medic:2.0.0-beta.1', value: 2, _rev: result.rev})))
     .should.be.rejectedWith('You are not allowed to overwrite existing releases or pre-releases'));
 
   it('Blocks incorrect document ids', () =>
     DB.put({_id: 'not-a-valid-version-identifier'})
     .should.be.rejectedWith('Document _id format invalid'));
+
+  it('must rely on either kanso or build_info properties', () =>
+    DB.put({_id: 'medic:validate_doc_update:1.0.0'})
+    .should.be.rejectedWith(/neither legacy kanso .+ build_info/));
+
+  it('kanso is valid', () =>
+    DB.put({_id: 'medic:validate_doc_update:2.0.0', kanso: {build_time: new Date()}}));
+
+  it('if build_info, it must be valid', () =>
+    DB.put({_id: 'medic:validate_doc_update:3.0.0', build_info: {not: 'valid'}})
+    .should.be.rejectedWith(/complete build_info property/));
 });

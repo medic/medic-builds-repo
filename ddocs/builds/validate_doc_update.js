@@ -5,6 +5,15 @@ function(newDoc, oldDoc, userCtx, secObj) {
     throw({ forbidden: 'Document _id format invalid' });
   }
 
+  var meta = newDoc.build_info;
+  if (meta) {
+    if (!(meta.application && meta.namespace && meta.version && meta.time && meta.author && meta.node_modules) ) {
+      throw({ forbidden: 'You must have a complete build_info property' });
+    }
+  } else if (!newDoc.kanso) {
+    throw({ forbidden: 'neither legacy kanso property nor build_info property exist'});
+  }
+
   if (version.branch) {
     // You can re-write over a branch as much as you like
     return;

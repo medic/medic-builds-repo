@@ -1,12 +1,14 @@
 function(doc) {
   var version = require('views/lib/version').fn(doc._id);
   if (version) {
-      var meta = { build_time: doc.kanso && doc.kanso.build_time };
+      var meta = doc.kanso ?
+        { time: doc.kanso && doc.kanso.build_time } :
+        doc.build_info;
 
       if (version.branch) {
         // Branch, medic:medic:my-cool-branch
         //
-        emit(['branch', version.namespace, version.application, meta.build_time, version.branch], meta);
+        emit(['branch', version.namespace, version.application, meta.time, version.branch], meta);
       } else if (version.pre) {
         // Pre-releoase, medic:medic:3.0.0-beta.1
         emit([version.pre, version.namespace, version.application,
