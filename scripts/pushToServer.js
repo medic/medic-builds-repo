@@ -21,7 +21,7 @@ DB.allDocs({keys: ids})
   console.log('Pushing generated ddocs');
   return DB.bulkDocs(generatedDDocs)
   .then(results => {
-    if (results.find(result => !result.ok)) {
+    if (results.find(result => result.error)) {
       console.error('Problems pushing generated ddocs', results);
       process.exit(-1);
     }

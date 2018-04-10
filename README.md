@@ -4,13 +4,30 @@ Design doc for builds repository.
 
 DDOCS are [pushed up by travis](https://github.com/medic/medic-webapp/blob/master/scripts/ci/push_to_staging.sh) with a specific name. These are then [pulled back down by api](https://github.com/medic/medic-api/blob/master/controllers/upgrade.js) and deployed by [horticulturalist](https://github.com/medic/horticulturalist).
 
-## Naming scheme
+## Design Doc requirements
+
+### Naming scheme
 
 Three valid examples: `medic:medic:3.0.0-beta.1`, `medic:medic:3.0.0`, `medic:medic:my-awesome-feature-branch`.
 
 The first two chunks between `:` is the namespace and the application name respectively. The namespace is just that: it has no logic relevant and is just used to scope things. The application name maps to the original ddoc name. It is what will be used to determine what to call the ddoc when deploying it.
 
 The next section is either the version or the branch. We support both "released" versions (`1.2.3`) or and "pre-release" versions (`1.2.3-beta.4`). The pre-release label can be whatever you like. We also support an arbitrary branch name.
+
+### Metadata
+
+There needs to be a `build_info` property in the ddoc:
+```json
+{
+    "build_info": {
+        "namespace": "medic",
+        "application": "medic",
+        "version": "3.0.0",
+        "time": "2018-04-09T07:48:27.015Z",
+        "author": "travis-ci"
+    }
+}
+```
 
 ## Usage
 
