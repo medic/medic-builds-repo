@@ -35,6 +35,7 @@ const withBuildInfo = (doc, specificTime) => {
   doc.build_info = {
     namespace: ns,
     application: app,
+    schema_version: 1,
     version: version,
     time: specificTime || new Date(),
     author: 'int. test',
@@ -169,6 +170,6 @@ describe('validate_doc_update', () => {
     DB.put({_id: 'medic:validate_doc_update:2.0.0', kanso: {build_time: new Date()}}));
 
   it('if build_info, it must be valid', () =>
-    DB.put({_id: 'medic:validate_doc_update:3.0.0', build_info: {not: 'valid'}})
+    DB.put({_id: 'medic:validate_doc_update:3.0.0', build_info: {schema_version: 1, not: 'valid'}})
     .should.be.rejectedWith(/complete build_info property/));
 });
