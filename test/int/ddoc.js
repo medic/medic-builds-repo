@@ -172,4 +172,8 @@ describe('validate_doc_update', () => {
   it('if build_info, it must be valid', () =>
     DB.put({_id: 'medic:validate_doc_update:3.0.0', build_info: {schema_version: 1, not: 'valid'}})
     .should.be.rejectedWith(/complete build_info property/));
+
+  it('must be a supported version', () =>
+    DB.put({_id: 'medic:validate_doc_update:3.0.0', build_info: {schema_version: 999, not: 'valid'}})
+    .should.be.rejectedWith(/Incompatible schema_version/));
 });
