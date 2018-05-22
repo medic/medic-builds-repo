@@ -7,6 +7,10 @@ function(newDoc, oldDoc, userCtx, secObj) {
 
   var meta = newDoc.build_info;
   if (meta) {
+    if (meta.schema_version !== 1) {
+      throw({ forbidden: 'Incompatible schema_version'});
+    }
+
     if (!(meta.application && meta.namespace && meta.version && meta.time && meta.author && meta.node_modules) ) {
       throw({ forbidden: 'You must have a complete build_info property' });
     }
