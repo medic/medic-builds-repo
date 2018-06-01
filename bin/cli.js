@@ -10,4 +10,4 @@ if (!BUILD_URL) {
 
 console.log(`Pushing builds server to ${BUILD_URL}`);
 
-require('../src')(BUILD_URL);
+require('../src').init(BUILD_URL);

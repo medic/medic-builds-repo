@@ -7,7 +7,7 @@ const PouchDB = require('pouchdb-core')
 
 const DDOC_PATH = path.join(__dirname, '..', 'ddocs', 'builds');
 
-const push = url => {
+const init = (url, { wipe } = {}) => {
   const DB = new PouchDB(url);
 
   return new Promise((resolve, reject) =>
@@ -33,5 +33,5 @@ const push = url => {
 };
 
 module.exports = {
-  push: push
+  init: init
 };
