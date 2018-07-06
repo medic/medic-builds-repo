@@ -20,7 +20,7 @@ const db = (url, wipe) => {
 
 const init = (url, { wipe } = {}) => {
   return db(url, wipe)
-    .then(() => {
+    .then(DB => {
       return new Promise((resolve, reject) =>
         compile(DDOC_PATH, (err, ddoc) => {
           if (err) {
