@@ -1,6 +1,10 @@
 function(newDoc, oldDoc, userCtx, secObj) {
   var version = require('views/lib/version').fn(newDoc._id);
 
+  if (!userCtx || !userCtx.name) {
+    throw({ forbidden: 'Must be logged in' });
+  }
+
   if (!version) {
     throw({ forbidden: 'Document _id format invalid' });
   }
