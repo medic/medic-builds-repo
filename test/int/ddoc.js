@@ -5,7 +5,6 @@ chai.use(chaiAsPromised);
 const should = chai.should();
 
 const uuid = require('uuid');
-const { URL } = require('url');
 
 const PouchDB = require('pouchdb-core')
         .plugin(require('pouchdb-adapter-http'))
