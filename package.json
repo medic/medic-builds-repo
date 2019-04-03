@@ -13,7 +13,8 @@
     "eslint": "eslint bin/ scripts/ src/ test/ ddocs/",
     "test": "npm run eslint && npm run unit-tests && npm run int-tests",
     "unit-tests": "mocha ./test/unit/*/**.js",
-    "int-tests": "mocha --full-trace -s 10000 -t 65536 ./test/int/*.js"
+    "int-tests": "mocha --full-trace -s 10000 -t 65536 ./test/int/*.js",
+    "build": "couchdb-compile ddocs/ > ddocs.json"
   },
   "dependencies": {
     "couchdb-compile": "^1.10.0",

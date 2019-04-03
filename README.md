@@ -2,7 +2,7 @@
 
 Design doc for builds repository.
 
-DDOCS are [pushed up by travis](https://github.com/medic/medic-webapp/blob/master/scripts/ci/push_to_staging.sh) with a specific name. These are then [pulled back down by api](https://github.com/medic/medic-api/blob/master/controllers/upgrade.js) and deployed by [horticulturalist](https://github.com/medic/horticulturalist).
+DDocs are [pushed up by travis](https://github.com/medic/medic-webapp/blob/master/scripts/ci/push_to_staging.sh) with a specific name. These are then [pulled back down by api](https://github.com/medic/medic-api/blob/master/controllers/upgrade.js) and deployed by [horticulturalist](https://github.com/medic/horticulturalist).
 
 ## Design Doc requirements
 
@@ -40,13 +40,21 @@ Quick notes:
  - releases and pre-releases are sorted by the major / minor / patch / pre-releasse number
  - branches are sorted newest branch first
 
+## Requirements for creating new releases
+
+If you wish to write a new release your CouchDB user needs to have the `builds-admin` role defined.
+
+The DDoc only allows branch builds to be re-written over multiple times: release and beta build types are only allowed to be created once.
+
 ## Testing
 
-You need grunt. To run the integration tests you need CouchDB (1.x or 2.x).
+To run the integration tests you need CouchDB (1.x or 2.x).
 
-Run the unit tests with `grunt unit`.
+Run the unit tests with `npm run unit-tests`.
 
-To also run the integration tests call `grunt test`. You need to pass in the URL of the CouchDB database you want to run the tests on. The URL must contain any basic auth required, and the basic auth user must be able to create users. The DB doesn't have to yet exist. The tests will destroy and re-create this DB when running the tests:
+To also run the integration tests call `npm run int-tests`. You need to pass in the URL of the CouchDB database you want to run the tests on.
+
+The `TEST_URL` must contain any basic auth required, and the basic auth user must be able to create users and DBs. The DB passed in `TEST_DB` doesn't have to yet exist. The tests will destroy and re-create this DB when running the tests:
 
 ```
 TEST_URL=http://admin:pass@localhost:5984 TEST_DB=builds-test grunt test
@@ -54,6 +62,6 @@ TEST_URL=http://admin:pass@localhost:5984 TEST_DB=builds-test grunt test
 
 ## Deployment
 
-The DDOC can be built with `grunt build`.
+The DDoc can be built with `npm run build`, which will write the ddoc to `ddocs.json`.
 
-Automatic deployment to the build server is handled by Travis, when a branch is merged to master. See: https://github.com/medic/medic-builds-repo/blob/master/scripts/pushToServer.js
+Automatic deployment to the build server is handled by Travis, when a branch is merged to `master`. See: https://github.com/medic/medic-builds-repo/blob/master/scripts/pushToServer.js
