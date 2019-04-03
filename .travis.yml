@@ -1,8 +1,5 @@
 language: node_js
 
-node_js:
-  - "latest"
-
 before_install:
   - |
     # We may not have couchdb for free
