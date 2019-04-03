@@ -46,10 +46,10 @@ You need grunt. To run the integration tests you need CouchDB (1.x or 2.x).
 
 Run the unit tests with `grunt unit`.
 
-To also run the integration tests call `grunt test`. You need to pass in the URL of the CouchDB database you want to run the tests on. The URL must contain any basic auth required. The DB doesn't have to yet exist. The tests will destroy and re-create this DB when running the tests:
+To also run the integration tests call `grunt test`. You need to pass in the URL of the CouchDB database you want to run the tests on. The URL must contain any basic auth required, and the basic auth user must be able to create users. The DB doesn't have to yet exist. The tests will destroy and re-create this DB when running the tests:
 
 ```
-TEST_URL=http://admin:pass@localhost:5984/builds-test grunt test
+TEST_URL=http://admin:pass@localhost:5984 TEST_DB=builds-test grunt test
 ```
 
 ## Deployment

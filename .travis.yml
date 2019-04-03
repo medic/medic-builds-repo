@@ -16,7 +16,7 @@ before_script:
   - npm install grunt-cli -g
 
 script:
-  - TEST_URL=http://localhost:5984/builds-test grunt ci
+  - TEST_URL=http://localhost:5984 TEST_DB=builds-test node run test
 
 after_success:
   - |

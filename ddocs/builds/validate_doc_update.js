@@ -1,8 +1,8 @@
-function(newDoc, oldDoc, userCtx, secObj) {
+function(newDoc, oldDoc, userCtx) {
   var version = require('views/lib/version').fn(newDoc._id);
 
-  if (!userCtx || !userCtx.name) {
-    throw({ forbidden: 'Must be logged in' });
+  if (!userCtx || userCtx.roles.indexOf('builds-admin') === -1) {
+    throw({ forbidden: 'Invalid user' });
   }
 
   if (!version) {
