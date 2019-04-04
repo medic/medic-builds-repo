@@ -22,7 +22,7 @@ const DBS = [
   console.log('Compiling ddoc');
   const ddoc = await compile();
 
-  for (let dbName in DBS) {
+  for (let dbName of DBS) {
     console.log(`:: pushing ddoc to ${dbName}`);
 
     const DB = PouchDB(`${process.env.BUILDS_COUCH_URL}/${dbName}`);
