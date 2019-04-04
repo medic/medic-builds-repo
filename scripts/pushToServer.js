@@ -1,25 +1,42 @@
 const { promisify } = require('util');
+const PouchDB = require('pouchdb-core').plugin(require('pouchdb-adapter-http'));
 
 const compile = async () => promisify(require('couchdb-compile'))('./ddocs/builds');
 
+const DBS = [
+  // Production
+  'builds',
+
+  // Testing by confirmed employees. Code in this repo gets moved to `builds`
+  // when it wants to be published (e.g. it's a tag)
+  'builds_testing',
+
+  // specifically NOT pushing to this one. This server should not use the build server code as we
+  // don't want the validation: here anonymous users *are* allowed to create builds. This is OK
+  // as these builds are only used for their external PRs and will never directly make it into
+  // production
+  // 'builds_external'
+];
+
 (async function main(){
-  console.log('pushToServer :: pushing ddoc to production');
-  console.log(`Connecting to ${process.env.BUILDS_COUCH_URL}`);
-
-  const DB = require('pouchdb-core')
-        .plugin(require('pouchdb-adapter-http'))(process.env.BUILDS_COUCH_URL);
-
   console.log('Compiling ddoc');
   const ddoc = await compile();
 
-  console.log('Getting existing ddoc (for _rev)');
-  const existing = await DB.get(ddoc._id);
-  if (existing) {
-    ddoc._rev = existing._rev;
-  }
+  for (let dbName in DBS) {
+    console.log(`:: pushing ddoc to ${dbName}`);
 
-  console.log('Pushing generated ddoc');
-  await DB.put(ddoc);
+    const DB = PouchDB(`${process.env.BUILDS_COUCH_URL}/${dbName}`);
+
+    console.log('..getting existing ddoc (for _rev)');
+    const existing = await DB.get(ddoc._id);
+    if (existing) {
+      ddoc._rev = existing._rev;
+    }
+
+    console.log('..pushing generated ddoc');
+    await DB.put(ddoc);
+    console.log('..done');
+  }
 })().catch(err => {
   console.error(err);
   process.exit(-1);
