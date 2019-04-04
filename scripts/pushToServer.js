@@ -13,7 +13,7 @@ const compile = async () => promisify(require('couchdb-compile'))('./ddocs/build
   const ddoc = await compile();
 
   console.log('Getting existing ddoc (for _rev)');
-  const existing = await DB.allDocs({key: ddoc._id});
+  const existing = await DB.get(ddoc._id);
   if (existing) {
     ddoc._rev = existing._rev;
   }
