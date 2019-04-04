@@ -62,6 +62,12 @@ TEST_URL=http://admin:pass@localhost:5984 TEST_DB=builds-test grunt test
 
 ## Deployment
 
-The DDoc can be built with `npm run build`, which will write the ddoc to `ddocs.json`.
-
 Automatic deployment to the build server is handled by Travis, when a branch is merged to `master`. See: https://github.com/medic/medic-builds-repo/blob/master/scripts/pushToServer.js
+
+If you want to generate the ddoc yourself you can use `couch-compile`:
+
+```sh
+npx couch-compile ddocs/builds/ | jq .
+# Or
+./node_modules/.bin/couch-compile ddocs/builds/ | jq .
+```

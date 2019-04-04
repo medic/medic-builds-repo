@@ -1,34 +1,26 @@
-const DB = require('pouchdb-core')
-      .plugin(require('pouchdb-adapter-http'))(process.env.BUILDS_COUCH_URL);
+const { promisify } = require('util');
 
-const generatedDDocs = require('../ddocs.json');
+const compile = async () => promisify(require('couchdb-compile'))('./ddocs/builds');
 
-if (!generatedDDocs) {
-  throw Error('Ddocs have not been generated');
-}
+(async function main(){
+  console.log('pushToServer :: pushing ddoc to production');
+  console.log(`Connecting to ${process.env.BUILDS_COUCH_URL}`);
 
-console.log('Getting existing ddocs (for _rev)');
-const ids = generatedDDocs.docs.map(ddoc => ddoc._id);
-DB.allDocs({keys: ids})
-.then(oldDdocs => {
-  console.log(JSON.stringify(oldDdocs));
-  oldDdocs.rows.map(row => {
-    const ddoc = generatedDDocs.docs.find(ddoc => ddoc.id === row._id);
+  const DB = require('pouchdb-core')
+        .plugin(require('pouchdb-adapter-http'))(process.env.BUILDS_COUCH_URL);
 
-    ddoc._rev = row.value.rev;
-  });
+  console.log('Compiling ddoc');
+  const ddoc = await compile();
 
-  console.log('Pushing generated ddocs');
-  return DB.bulkDocs(generatedDDocs)
-  .then(results => {
-    if (results.find(result => result.error)) {
-      console.error('Problems pushing generated ddocs', results);
-      process.exit(-1);
-    }
-    console.log('Complete');
-  });
-})
-.catch(err => {
-  console.error('Unknown problem', err);
+  console.log('Getting existing ddoc (for _rev)');
+  const existing = await DB.allDocs({key: ddoc._id});
+  if (existing) {
+    ddoc._rev = existing._rev;
+  }
+
+  console.log('Pushing generated ddoc');
+  await DB.put(ddoc);
+})().catch(err => {
+  console.error(err);
   process.exit(-1);
-});
+})
