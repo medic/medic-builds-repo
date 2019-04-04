@@ -1,6 +1,6 @@
 {
   "name": "medic-builds-repo",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Medic's build repository ddocs",
   "license": "Apache-2.0",
   "repository": {
@@ -9,6 +9,13 @@
   },
   "main": "./src/",
   "bin": "./bin/cli.js",
+  "scripts": {
+    "eslint": "eslint bin/ scripts/ src/ test/ ddocs/",
+    "test": "npm run eslint && npm run unit-tests && npm run int-tests",
+    "unit-tests": "mocha ./test/unit/*/**.js",
+    "int-tests": "mocha --full-trace -s 10000 -t 65536 ./test/int/*.js",
+    "build": "couchdb-compile ddocs/ > ddocs.json"
+  },
   "dependencies": {
     "couchdb-compile": "^1.10.0",
     "pouchdb-adapter-http": "^6.4.3",
@@ -18,12 +25,11 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "grunt": "^1.0.2",
-    "grunt-contrib-jshint": "^1.1.0",
-    "grunt-couch": "^1.5.1",
-    "grunt-mocha-test": "^0.13.3",
-    "load-grunt-tasks": "^4.0.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-couchdb": "^0.1.0",
+    "eslint-plugin-mocha": "^5.3.0",
+    "eslint-plugin-no-only-tests": "^2.1.0",
     "mocha": "^5.2.0",
-    "nodeunit": "^0.11.2"
+    "uuid": "^3.3.2"
   }
 }

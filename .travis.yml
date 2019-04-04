@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - "6.10"
+  - "10"
 
 before_install:
   - |
@@ -12,14 +12,11 @@ before_install:
     until nc -z localhost 5984; do sleep 1; done
     echo "CouchDB Started"
 
-before_script:
-  - npm install grunt-cli -g
-
 script:
-  - TEST_URL=http://localhost:5984/builds-test grunt ci
+  - TEST_URL=http://localhost:5984 TEST_DB=builds-test npm run test
 
 after_success:
   - |
     if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-      node ./scripts/pushToServer.js
+      npm run build && node ./scripts/pushToServer.js
     fi
