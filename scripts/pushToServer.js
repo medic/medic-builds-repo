@@ -28,9 +28,13 @@ const DBS = [
     const DB = PouchDB(`${process.env.BUILDS_COUCH_URL}/${dbName}`);
 
     console.log('..getting existing ddoc (for _rev)');
-    const existing = await DB.get(ddoc._id);
-    if (existing) {
-      ddoc._rev = existing._rev;
+    try {
+      const existing = await DB.get(ddoc._id);
+      if (existing) {
+        ddoc._rev = existing._rev;
+      }
+    } catch (err) {
+      console.log('No existing doc');
     }
 
     console.log('..pushing generated ddoc');
