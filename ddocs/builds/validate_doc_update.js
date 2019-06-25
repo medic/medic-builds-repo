@@ -9,6 +9,16 @@ function(newDoc, oldDoc, userCtx) {
     throw({ forbidden: 'Document _id format invalid' });
   }
 
+  if (newDoc._deleted && version.branch) {
+    // You are allowed to delete branches, don't worry worry about validating anything
+    return;
+  }
+
+  if (newDoc._deleted) {
+    // and you're not allowed to delete anything else!
+    throw({ forbidden: 'You are not allowed to delete releases or pre-releases'});
+  }
+
   var meta = newDoc.build_info;
   if (meta) {
     if (meta.schema_version !== 1) {
@@ -22,12 +32,7 @@ function(newDoc, oldDoc, userCtx) {
     throw({ forbidden: 'neither legacy kanso property nor build_info property exist'});
   }
 
-  if (version.branch) {
-    // You can re-write over a branch as much as you like
-    return;
-  }
-
-  if (oldDoc) {
+  if (!version.branch && oldDoc) {
     throw({ forbidden: 'You are not allowed to overwrite existing releases or pre-releases' });
   }
 }
