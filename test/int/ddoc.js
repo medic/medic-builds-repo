@@ -221,6 +221,23 @@ describe('Design document', () => {
       .then(result => BuildsDb.put(withBuildInfo({_id: 'medic:medic:2.0.0-beta.1', value: 2, _rev: result.rev})))
       .should.be.rejectedWith('You are not allowed to overwrite existing releases or pre-releases'));
 
+    it('Blocks deleting releases', () =>
+      BuildsDb.put(withBuildInfo({ _id: 'medic:medic:2.1.0', value: 1 }))
+      .then(result => BuildsDb.put(withBuildInfo({ _id: 'medic:medic:2.1.0', _rev: result.rev, _deleted: true })))
+      .should.be.rejectedWith('You are not allowed to delete releases'));
+
+    it('Allows deleting pre-preleases', () =>
+      BuildsDb.put(withBuildInfo({_id: 'medic:medic:2.1.0-beta.1', value: 1 }))
+      .then(result => BuildsDb.put(withBuildInfo({_id: 'medic:medic:2.1.0-beta.1', _rev: result.rev, _deleted: true })))
+      .then(() => BuildsDb.get('medic:medic:2.1.0-beta.1'))
+      .should.be.rejectedWith('deleted'));
+
+    it('Allows deleting branches', () =>
+      BuildsDb.put(withBuildInfo({_id: 'medic:medic:1111-some-branch', value: 1 }))
+      .then(result => BuildsDb.put(withBuildInfo({_id: 'medic:medic:1111-some-branch', _rev: result.rev, _deleted: true })))
+      .then(() => BuildsDb.get('medic:medic:1111-some-branch'))
+      .should.be.rejectedWith('deleted'));
+
     it('Blocks incorrect document ids', () =>
       BuildsDb.put({_id: 'not-a-valid-version-identifier'})
       .should.be.rejectedWith('Document _id format invalid'));
