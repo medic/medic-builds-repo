@@ -9,14 +9,14 @@ function(newDoc, oldDoc, userCtx) {
     throw({ forbidden: 'Document _id format invalid' });
   }
 
-  if (newDoc._deleted && version.branch) {
-    // You are allowed to delete branches, don't worry worry about validating anything
-    return;
-  }
-
   if (newDoc._deleted) {
-    // and you're not allowed to delete anything else!
-    throw({ forbidden: 'You are not allowed to delete releases or pre-releases'});
+    if (version.branch || version.pre) {
+      // You are allowed to delete branches, alphas, and betas.
+      // Don't worry worry about validating anything.
+      return;
+    }
+    // You're not allowed to delete anything else (eg: final releases)
+    throw({ forbidden: 'You are not allowed to delete releases' });
   }
 
   var meta = newDoc.build_info;
