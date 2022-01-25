@@ -2,7 +2,7 @@
 
 Design doc for builds repository.
 
-DDocs are [pushed up by travis](https://github.com/medic/medic-webapp/blob/master/scripts/ci/push_to_staging.sh) with a specific name. These are then [pulled back down by api](https://github.com/medic/medic-api/blob/master/controllers/upgrade.js) and deployed by [horticulturalist](https://github.com/medic/horticulturalist).
+DDocs are [pushed up by CI](https://github.com/medic/medic-webapp/blob/master/scripts/ci/push_to_staging.sh) with a specific name. These are then [pulled back down by api](https://github.com/medic/medic-api/blob/master/controllers/upgrade.js) and deployed by [horticulturalist](https://github.com/medic/horticulturalist).
 
 ## Design Doc requirements
 
@@ -62,7 +62,7 @@ TEST_URL=http://admin:pass@localhost:5984 TEST_DB=builds-test grunt test
 
 ## Deployment
 
-Automatic deployment to the build server is handled by Travis, when a branch is merged to `master`. See: https://github.com/medic/medic-builds-repo/blob/master/scripts/pushToServer.js
+Automatic deployment to the build server is handled by GitHub Actions, when a branch is merged to `master`. See: https://github.com/medic/medic-builds-repo/blob/master/scripts/pushToServer.js
 
 If you want to generate the ddoc yourself you can use `couch-compile`:
 
