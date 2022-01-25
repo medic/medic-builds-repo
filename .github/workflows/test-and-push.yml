@@ -2,6 +2,9 @@ name: Test ddocs and push to builds server
 
 on: [push, pull_request]
 
+env:
+  BUILDS_COUCH_URL: ${{ secrets.BUILDS_URL }}
+
 jobs:
 
   test:
