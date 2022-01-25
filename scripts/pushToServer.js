@@ -34,6 +34,7 @@ const DBS = [
         ddoc._rev = existing._rev;
       }
     } catch (err) {
+      console.error(err);
       delete ddoc._rev;
       console.log('No existing doc');
     }
