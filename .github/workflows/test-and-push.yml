@@ -33,7 +33,7 @@ jobs:
     needs: test
     name: Push to builds server
     runs-on: ubuntu-18.04
-    if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/master' }}
 
     steps:
       - uses: actions/checkout@v2
