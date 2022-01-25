@@ -23,6 +23,7 @@ jobs:
         run: |
           docker run -d -p 5984:5984 --name couch couchdb:2.3.1
           until nc -z localhost 5984; do sleep 1; done
+          
 
       - run: npm ci
       - name: Test

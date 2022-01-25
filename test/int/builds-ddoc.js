@@ -1,5 +1,5 @@
-const chai = require("chai");
-const chaiAsPromised = require("chai-as-promised");
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
 const should = chai.should();
@@ -32,30 +32,24 @@ buildsUrl.username = buildsUser.name;
 buildsUrl.password = buildsUser.password;
 buildsUrl = buildsUrl.toString();
 
-console.log(buildsUrl);
-
 const UsersDb = new PouchDB(`${TEST_URL}/_users`);
 let BuildsDb = new PouchDB(buildsUrl);
 let AdminBuildsDb = new PouchDB(`${TEST_URL}/${TEST_DB}`);
 
 const resetDb = () =>
-    AdminBuildsDb.destroy()
+  AdminBuildsDb
+    .destroy()
     .then(() => {
       AdminBuildsDb = new PouchDB(`${TEST_URL}/${TEST_DB}`)
       return AdminBuildsDb.info(); // Trigger creation by an admin
     })
-    .then(() =>
-      new Promise((resolve, reject) =>
-        compile('ddocs/builds', (err, ddoc) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(ddoc);
-          }
-      })))
-      .then(ddoc => AdminBuildsDb.put(ddoc));
+    .then(() => new Promise((resolve, reject) =>
+      compile('ddocs/builds', (err, ddoc) => err ? reject(err) : resolve(ddoc))
+    ))
+    .then(ddoc => AdminBuildsDb.put(ddoc));
 
-const setupUser = () => UsersDb.put(buildsUser)
+const setupUser = () => UsersDb
+  .put(buildsUser)
   .then(result => {
     buildsUser._rev = result.rev;
   });
