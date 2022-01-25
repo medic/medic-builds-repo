@@ -21,7 +21,6 @@ const DBS = [
 (async function main(){
   console.log('Compiling ddoc');
   const ddoc = await compile();
-  console.log(JSON.stringify(ddoc, null, 2));
 
   for (let dbName of DBS) {
     console.log(`:: pushing ddoc to ${dbName}`);
@@ -35,7 +34,6 @@ const DBS = [
         ddoc._rev = existing._rev;
       }
     } catch (err) {
-      console.error(err);
       delete ddoc._rev;
       console.log('No existing doc');
     }
