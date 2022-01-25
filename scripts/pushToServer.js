@@ -21,6 +21,7 @@ const DBS = [
 (async function main(){
   console.log('Compiling ddoc');
   const ddoc = await compile();
+  console.log(JSON.stringify(ddoc, null, 2));
 
   for (let dbName of DBS) {
     console.log(`:: pushing ddoc to ${dbName}`);
