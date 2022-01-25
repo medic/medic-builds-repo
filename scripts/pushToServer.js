@@ -39,7 +39,7 @@ const DBS = [
     }
 
     console.log('..pushing generated ddoc');
-    await DB.put(ddoc);
+    //await DB.put(ddoc);
     console.log('..done');
   }
 })().catch(err => {
