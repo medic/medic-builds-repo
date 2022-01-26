@@ -40,7 +40,7 @@ const resetDb = () =>
   AdminBuildsDb
     .destroy()
     .then(() => {
-      AdminBuildsDb = new PouchDB(`${TEST_URL}/${TEST_DB}`)
+      AdminBuildsDb = new PouchDB(`${TEST_URL}/${TEST_DB}`);
       return AdminBuildsDb.info(); // Trigger creation by an admin
     })
     .then(() => new Promise((resolve, reject) =>
@@ -72,7 +72,7 @@ const withBuildInfo = (doc, specificTime) => {
   return doc;
 };
 
-describe('Design document', () => {
+describe('"Builds" Design document', () => {
   before(() => setupUser());
   after(() => teardownUser());
 
