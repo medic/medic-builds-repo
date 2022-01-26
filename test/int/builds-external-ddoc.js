@@ -65,6 +65,13 @@ describe('"Builds External" Design document', () => {
   afterEach(() => clearDb());
 
   describe('validate_doc_update for anonymous users', () => {
+    it('we should be using an anonymous user', async () => {
+      const serverUrl = new URL(buildsDb.name);
+      serverUrl.pathname = '';
+      const session = await (await PouchDB.fetch(`${serverUrl}/_session`)).json();
+      expect(session.userCtx).to.deep.equal({ name: null, roles: [] });
+    });
+
     it('should allow to push builds', async () => {
       await buildsDb.put(withBuildInfo({_id: 'medic:medic:a-branch', value: 1}));
     });
