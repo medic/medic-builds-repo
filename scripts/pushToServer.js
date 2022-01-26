@@ -1,7 +1,8 @@
 const { promisify } = require('util');
+const path = require('path');
 const PouchDB = require('pouchdb-core').plugin(require('pouchdb-adapter-http'));
 
-const compile = async () => promisify(require('couchdb-compile'))('./ddocs/builds');
+const compile = async (buildPath) => promisify(require('couchdb-compile'))(buildPath);
 
 const DBS = [
   // Production
@@ -18,30 +19,37 @@ const DBS = [
   // 'builds_external'
 ];
 
-(async function main(){
-  console.log('Compiling ddoc');
-  const ddoc = await compile();
+const pushDdoc = async (dbName, compiledDdoc) => {
+  console.log(`:: pushing ddoc to ${dbName}`);
 
-  for (let dbName of DBS) {
-    console.log(`:: pushing ddoc to ${dbName}`);
+  const DB = PouchDB(`${process.env.BUILDS_COUCH_URL}/${dbName}`);
 
-    const DB = PouchDB(`${process.env.BUILDS_COUCH_URL}/${dbName}`);
-
-    console.log('..getting existing ddoc (for _rev)');
-    try {
-      const existing = await DB.get(ddoc._id);
-      if (existing) {
-        ddoc._rev = existing._rev;
-      }
-    } catch (err) {
-      delete ddoc._rev;
-      console.log('No existing doc');
+  console.log('..getting existing ddoc (for _rev)');
+  try {
+    const existing = await DB.get(compiledDdoc._id);
+    if (existing) {
+      compiledDdoc._rev = existing._rev;
     }
-
-    console.log('..pushing generated ddoc');
-    await DB.put(ddoc);
-    console.log('..done');
+  } catch (err) {
+    delete compiledDdoc._rev;
+    console.log('No existing doc');
   }
+
+  console.log('..pushing generated ddoc');
+  await DB.put(compiledDdoc);
+  console.log('..done');
+};
+
+(async function main(){
+  console.log('Compiling ddocs');
+  const ddoc = await compile(path.join(__dirname, '..', 'ddocs/builds'));
+  const buildsExternalDdoc = await compile(path.join(__dirname, '..', 'ddocs/builds_external'));
+
+  for (const dbName of DBS) {
+    await pushDdoc(dbName, ddoc);
+  }
+
+  await pushDdoc('builds_external', buildsExternalDdoc);
 })().catch(err => {
   console.error(err);
   process.exit(-1);

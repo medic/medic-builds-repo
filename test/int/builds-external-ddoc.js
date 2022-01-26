@@ -25,9 +25,10 @@ const getBuildsUrl = () => {
 const buildsUrl = getBuildsUrl();
 
 const buildsDb = new PouchDB(buildsUrl);
-let adminBuildsDb = new PouchDB(adminBuildsUrl);
+let adminBuildsDb;
 
 const resetDb = async () => {
+  adminBuildsDb = new PouchDB(adminBuildsUrl);
   await adminBuildsDb.destroy();
   adminBuildsDb = new PouchDB(adminBuildsUrl);
   await adminBuildsDb.info();
