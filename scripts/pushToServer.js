@@ -18,9 +18,7 @@ const pushDdoc = async (dbName, compiledDdoc) => {
   console.log('..getting existing ddoc (for _rev)');
   try {
     const existing = await DB.get(compiledDdoc._id);
-    if (existing) {
-      compiledDdoc._rev = existing._rev;
-    }
+    compiledDdoc._rev = existing._rev;
   } catch (err) {
     delete compiledDdoc._rev;
     console.log('No existing doc');
@@ -33,8 +31,11 @@ const pushDdoc = async (dbName, compiledDdoc) => {
 
 (async function main() {
   console.log('Compiling ddocs');
-  const ddoc = await compile(path.join(__dirname, '..', 'ddocs/builds'));
-  const buildsExternalDdoc = await compile(path.join(__dirname, '..', 'ddocs/builds_external'));
+  const buildsDdocPath = path.join(__dirname, '..', 'ddocs/builds');
+  const ddoc = await compile(buildsDdocPath);
+
+  const buildsExternalDdocPath = path.join(__dirname, '..', 'ddocs/builds_external');
+  const buildsExternalDdoc = await compile(buildsExternalDdocPath);
 
   await pushDdoc(PRODUCTION_DB, ddoc);
 

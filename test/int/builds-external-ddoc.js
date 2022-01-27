@@ -1,4 +1,7 @@
-const { expect } = require('chai');
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+chai.use(chaiAsPromised);
+const expect = chai.expect;
 const { promisify } = require('util');
 
 const PouchDB = require('pouchdb-core');
@@ -60,8 +63,8 @@ const withBuildInfo = (doc, specificTime) => {
 };
 
 describe('"Builds External" Design document', () => {
-  before(() => resetDb());
-  afterEach(() => clearDb());
+  before(resetDb);
+  afterEach(clearDb);
 
   describe('validate_doc_update for anonymous users', () => {
     it('we should be using an anonymous user', async () => {
@@ -118,21 +121,13 @@ describe('"Builds External" Design document', () => {
     });
 
     it('should now allow creation of documents with invalid ids', async () => {
-      try {
-        await buildsDb.put(withBuildInfo({ _id: 'not-a-valid-version-identifier' }));
-        expect.fail('Should have thrown');
-      } catch (err) {
-        expect(err.message).to.equal('Document _id format invalid');
-      }
+      const result = buildsDb.put(withBuildInfo({ _id: 'not-a-valid-version-identifier' }));
+      await expect(result).to.be.rejectedWith('Document _id format invalid');
     });
 
     it('should require docs to have a build_info property', async () => {
-      try {
-        await buildsDb.put({ _id: 'medic:validate_doc_update:1.0.0' });
-        expect.fail('Should have thrown');
-      } catch (err) {
-        expect(err.message).to.equal('build_info property is required');
-      }
+      const result = buildsDb.put({ _id: 'medic:validate_doc_update:1.0.0' });
+      await expect(result).to.be.rejectedWith('build_info property is required');
     });
 
     it('should require docs to have a valid build_info property', async () => {
@@ -140,12 +135,7 @@ describe('"Builds External" Design document', () => {
         _id: 'medic:validate_doc_update:3.0.0',
         build_info: { schema_version: 1, not: 'valid' }
       };
-      try {
-        await buildsDb.put(doc);
-        expect.fail('Should have thrown');
-      } catch (err) {
-        expect(err.message).to.match(/complete build_info property/);
-      }
+      await expect(buildsDb.put(doc)).to.be.rejectedWith('complete build_info property');
     });
 
     it('should require docs to have a valid build_info.schema property', async () => {
@@ -153,13 +143,7 @@ describe('"Builds External" Design document', () => {
         _id: 'medic:validate_doc_update:3.0.0',
         build_info: { schema_version: 22, not: 'valid' }
       };
-      try {
-        await buildsDb.put(doc);
-        expect.fail('Should have thrown');
-      } catch (err) {
-        expect(err.message).to.match(/Incompatible schema_version/);
-      }
+      await expect(buildsDb.put(doc)).to.be.rejectedWith('Incompatible schema_version');
     });
   });
-
 });
