@@ -39,13 +39,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: 'refs/heads/master'
+
+      - name: Get HEAD ref
+        id: head-ref
+        run: echo "::set-output name=ref::$(git rev-parse HEAD)"
 
       - name: Use Node.js 16.x
         uses: actions/setup-node@v2
         with:
           node-version: 16.x
 
-      - run: npm ci
-
       - name: Publish
-        run: node ./scripts/pushToServer.js
+        if: ${{ github.sha == steps.head-ref.outputs.ref }}
+        run: |
+          npm ci
+          node ./scripts/pushToServer.js
