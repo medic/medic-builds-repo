@@ -22,11 +22,13 @@ jobs:
       - name: Run CouchDb in Docker
         run: |
           docker run -d -p 5984:5984 --name couch couchdb:2.3.1
-          until nc -z localhost 5984; do sleep 1; done
+          until nc -z localhost 5984; do sleep 1; done        
 
       - run: npm ci
       - name: Test
-        run: TEST_URL=http://localhost:5984 TEST_DB=builds-test npm run test
+        run: |
+          curl -X PUT http://localhost:5984/_node/nonode@nohost/_config/admins/admin -d '"password"'
+          TEST_URL=http://admin:password@localhost:5984 TEST_DB=builds-test npm run test
 
 
   push:
