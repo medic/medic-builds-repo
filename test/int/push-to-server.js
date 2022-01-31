@@ -51,7 +51,7 @@ const expectIdenticalDdocs = async (revIteration) => {
   delete buildsTestingUploadedDdoc._rev;
   expect(buildsTestingUploadedDdoc).to.deep.equal(buildsDdoc);
 
-  const buildsExternalUploadedDdoc = await buildExternalDb.get('_design/builds_external');
+  const buildsExternalUploadedDdoc = await buildExternalDb.get('_design/builds');
   expect(buildsExternalUploadedDdoc._rev).to.match(new RegExp(`^${revIteration}-`));
   delete buildsExternalUploadedDdoc._rev;
   expect(buildsExternalUploadedDdoc).to.deep.equal(buildsExternalDdoc);
