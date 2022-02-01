@@ -28,12 +28,12 @@ const getBuildsUrl = () => {
 const buildsUrl = getBuildsUrl();
 
 const buildsDb = new PouchDB(buildsUrl);
-const adminBuildsDb = new PouchDB(adminBuildsUrl);
+let adminBuildsDb = new PouchDB(adminBuildsUrl);
 
 const resetDb = async () => {
   await (new PouchDB(adminBuildsUrl)).destroy();
 
-  await adminBuildsDb.info();
+  adminBuildsDb = new PouchDB(adminBuildsUrl);
   const ddoc = await compile();
   await adminBuildsDb.put(ddoc);
 };
@@ -63,10 +63,10 @@ const withBuildInfo = (doc, specificTime) => {
 };
 
 describe('"Builds External" Design document', () => {
-  before(resetDb);
-  afterEach(clearDb);
-
   describe('validate_doc_update for anonymous users', () => {
+    before(resetDb);
+    afterEach(clearDb);
+
     it('we should be using an anonymous user', async () => {
       const serverUrl = new URL(buildsDb.name);
       serverUrl.pathname = '';
@@ -144,6 +144,52 @@ describe('"Builds External" Design document', () => {
         build_info: { schema_version: 22, not: 'valid' }
       };
       await expect(buildsDb.put(doc)).to.be.rejectedWith('Incompatible schema_version');
+    });
+  });
+
+  describe('releases view', () => {
+    before(async () => {
+      await resetDb();
+
+      const testReleases = [
+        withBuildInfo({_id: 'medic:medic:test-1'}, 1000),
+        withBuildInfo({_id: 'medic:medic:test-2'}, 2000),
+        withBuildInfo({_id: 'medic:medic:test-3'}, 3000),
+        withBuildInfo({_id: 'medic:medic:test-older'}, 100),
+        withBuildInfo({_id: 'medic:medic:test-newer'}, 10000),
+        withBuildInfo({_id: 'bar:foo:not-a-medic-branch'}, 2000),
+      ];
+      await adminBuildsDb.bulkDocs(testReleases);
+    });
+
+    it('should filter newer builds', async () => {
+      const results = await buildsDb.query('builds/releases', {
+        startkey: ['branch', 'medic', 'medic', 5000],
+        endkey: ['branch', 'medic', 'medic', {}],
+      });
+
+      const ids = results.rows.map(row => row.id);
+      expect(ids).to.have.members(['medic:medic:test-newer']);
+    });
+
+    it('should filter older builds', async () => {
+      const results = await buildsDb.query('builds/releases', {
+        startkey: ['branch', 'medic', 'medic'],
+        endkey: ['branch', 'medic', 'medic', 2000],
+      });
+
+      const ids = results.rows.map(row => row.id);
+      expect(ids).to.have.members(['medic:medic:test-older', 'medic:medic:test-1']);
+    });
+
+    it('should filter between dates', async () => {
+      const results = await buildsDb.query('builds/releases', {
+        startkey: ['branch', 'medic', 'medic', 500],
+        endkey: ['branch', 'medic', 'medic', 3000],
+      });
+
+      const ids = results.rows.map(row => row.id);
+      expect(ids).to.have.members(['medic:medic:test-1', 'medic:medic:test-2']);
     });
   });
 });
