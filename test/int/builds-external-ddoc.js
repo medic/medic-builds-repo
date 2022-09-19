@@ -149,6 +149,14 @@ describe('"Builds External" Design document', () => {
       await expect(buildsDb.put(doc)).to.be.rejectedWith('complete build_info property');
     });
 
+    it('should require docs to have a valid build_info property for 4.x', async () => {
+      const doc = {
+        _id: 'medic:validate_doc_update:3.0.0',
+        build_info: { schema_version: 2, not: 'valid' }
+      };
+      await expect(buildsDb.put(doc)).to.be.rejectedWith('complete build_info property');
+    });
+
     it('should require docs to have a valid build_info.schema property', async () => {
       const doc = {
         _id: 'medic:validate_doc_update:3.0.0',
