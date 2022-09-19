@@ -56,18 +56,21 @@ const setupUser = () => UsersDb
 
 const teardownUser = () => UsersDb.remove(buildsUser);
 
-const withBuildInfo = (doc, specificTime) => {
+const withBuildInfo = (doc, specificTime, schemaVersion=1) => {
   const [ns, app, version] = doc._id.split(':');
 
   doc.build_info = {
     namespace: ns,
     application: app,
-    schema_version: 1,
+    schema_version: schemaVersion,
     version: version,
     time: specificTime || new Date(),
     author: 'int. test',
-    node_modules: []
   };
+
+  if (schemaVersion === 1) {
+    doc.build_info.node_modules = [];
+  }
 
   return doc;
 };
@@ -199,6 +202,18 @@ describe('"Builds" Design document', () => {
         InvalidBuildsDb.put(withBuildInfo({_id: 'medic:medic:a-branch', value: 1})).should.eventually.be.rejected);
     });
 
+    it('should allow v1 build_info schema', () => {
+      return BuildsDb
+        .put(withBuildInfo({ _id: 'medic:medic:v1-branch' }, 0, 1))
+        .then(() => BuildsDb.get('medic:medic:v1-branch'));
+    });
+
+    it('should allow v2 build_info schema', () => {
+      return BuildsDb
+        .put(withBuildInfo({ _id: 'medic:medic:v2-branch' }, 0, 2))
+        .then(() => BuildsDb.get('medic:medic:v2-branch'));
+    });
+
     it('Lets us write to a branch multiple times', () =>
       BuildsDb.put(withBuildInfo({_id: 'medic:medic:a-branch', value: 1}))
       .then(result => BuildsDb.put(withBuildInfo({_id: 'medic:medic:a-branch', value: 2, _rev: result.rev})))
@@ -246,6 +261,12 @@ describe('"Builds" Design document', () => {
     it('if build_info, it must be valid', () =>
       BuildsDb.put({_id: 'medic:validate_doc_update:3.0.0', build_info: {schema_version: 1, not: 'valid'}})
       .should.be.rejectedWith(/complete build_info property/));
+
+    it('if build_info, it must be valid for 4.x', () => {
+      return BuildsDb
+        .put({_id: 'medic:validate_doc_update:3.0.0', build_info: { schema_version: 2, not: 'valid' }})
+        .should.be.rejectedWith(/complete build_info property/);
+    });
 
     it('must be a supported version', () =>
       BuildsDb.put({_id: 'medic:validate_doc_update:3.0.0', build_info: {schema_version: 999, not: 'valid'}})
