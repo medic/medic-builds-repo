@@ -57,7 +57,7 @@ To also run the integration tests call `npm run int-tests`. You need to pass in 
 The `TEST_URL` must contain any basic auth required, and the basic auth user must be able to create users and DBs. The DB passed in `TEST_DB` doesn't have to yet exist. The tests will destroy and re-create this DB when running the tests:
 
 ```
-TEST_URL=http://admin:pass@localhost:5984 TEST_DB=builds-test grunt test
+TEST_URL=http://admin:pass@localhost:5984 TEST_DB=builds-test npm run test
 ```
 
 ## Deployment

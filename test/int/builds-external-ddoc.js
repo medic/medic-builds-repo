@@ -46,18 +46,21 @@ const clearDb = async () => {
   await adminBuildsDb.bulkDocs(docsToDelete);
 };
 
-const withBuildInfo = (doc, specificTime) => {
+const withBuildInfo = (doc, specificTime, schemaVersion=1) => {
   const [ns, app, version] = doc._id.split(':');
 
   doc.build_info = {
     namespace: ns,
     application: app,
-    schema_version: 1,
+    schema_version: schemaVersion,
     version: version,
     time: specificTime || new Date(),
     author: 'int. test',
-    node_modules: []
   };
+
+  if (schemaVersion === 1) {
+    doc.build_info.node_modules = [];
+  }
 
   return doc;
 };
@@ -76,6 +79,14 @@ describe('"Builds External" Design document', () => {
 
     it('should allow to push builds', async () => {
       await buildsDb.put(withBuildInfo({_id: 'medic:medic:a-branch', value: 1}));
+    });
+
+    it('should allow v1 build_info schema', async () => {
+      await buildsDb.put(withBuildInfo({ _id: 'medic:medic:v1-branch' }, 0, 1));
+    });
+
+    it('should allow v2 build_info schema', async () => {
+      await buildsDb.put(withBuildInfo({ _id: 'medic:medic:v2-branch' }, 0, 2));
     });
 
     it('should allow pushing the same build multiple times', async () => {
@@ -134,6 +145,14 @@ describe('"Builds External" Design document', () => {
       const doc = {
         _id: 'medic:validate_doc_update:3.0.0',
         build_info: { schema_version: 1, not: 'valid' }
+      };
+      await expect(buildsDb.put(doc)).to.be.rejectedWith('complete build_info property');
+    });
+
+    it('should require docs to have a valid build_info property for 4.x', async () => {
+      const doc = {
+        _id: 'medic:validate_doc_update:3.0.0',
+        build_info: { schema_version: 2, not: 'valid' }
       };
       await expect(buildsDb.put(doc)).to.be.rejectedWith('complete build_info property');
     });
