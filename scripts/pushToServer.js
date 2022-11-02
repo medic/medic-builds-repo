@@ -4,9 +4,15 @@ const PouchDB = require('pouchdb-core').plugin(require('pouchdb-adapter-http'));
 
 const compile = async (buildPath) => promisify(require('couchdb-compile'))(buildPath);
 
-const PRODUCTION_DB = 'builds';
+// production DB for v3.x builds
+const PRODUCTION_DB_3 = 'builds';
+
+// production DB for v4.x builds
+const PRODUCTION_DB_4 = 'builds_4';
+
 // Testing by confirmed employees. Code in this repo gets moved to `builds` after e2e tests are successful.
 const TESTING_DB = 'builds_testing';
+
 // Builds by external contributors. Code in this repo never gets moved to `builds`.
 const EXTERNAL_DB = 'builds_external';
 
@@ -37,7 +43,9 @@ const pushDdoc = async (dbName, compiledDdoc) => {
   const buildsExternalDdocPath = path.join(__dirname, '..', 'ddocs/builds_external');
   const buildsExternalDdoc = await compile(buildsExternalDdocPath);
 
-  await pushDdoc(PRODUCTION_DB, ddoc);
+  await pushDdoc(PRODUCTION_DB_3, ddoc);
+
+  await pushDdoc(PRODUCTION_DB_4, ddoc);
 
   await pushDdoc(TESTING_DB, ddoc);
 
